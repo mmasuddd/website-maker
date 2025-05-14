@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<head>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  </head>
+  
+  <nav class="navbar">
+    <div class="nav-content">
+        <a href="#home">Home</a>
+        <a href="encryption.html" class="hero">
+            <i class="fas fa-unlock"></i>
+            </a>
+    </div>
+</nav>
+
+  
+  
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AES Encrypt/Decrypt Tool</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #eef1f5;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+
+    .container {
+      background: white;
+      margin: 40px auto;
+      padding: 30px 40px;
+      width: 100%;
+      max-width: 600px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    h1, h2 {
+      text-align: center;
+      color: #2c3e50;
+    }
+
+    label {
+      font-weight: 600;
+      margin-top: 15px;
+      display: block;
+      color: #34495e;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+
+    textarea {
+      height: 120px;
+      resize: vertical;
+    }
+
+    button {
+      margin-top: 15px;
+      background: #000000;
+      color: rgb(9, 234, 13);
+      border: none;
+      padding: 12px;
+      font-size: 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: #1a242f;
+    }
+
+    .section {
+      margin-top: 30px;
+    }
+
+textarea {
+  font-family: 'Courier New', monospace;
+  font-size: 0.95rem;
+  background: #f4f4f4;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+textarea {
+  font-family: 'Courier New', monospace;
+  font-size: 0.95rem;
+  background: #f4f4f4;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+  </style>
+</head>
+<body>
+
+
+
+  <section id="overview" class="topic-section">
+    <div class="container">
+        <h1 class="header">AES Encryption/Decryption Demo</h1>
+        <div class="content-box">
+            <h2>Overview</h2>
+            <div class="editable-content">
+                <h2>Encrypt</h2>
+  <input type="text" id="userMessage" placeholder="Enter message to encrypt" />
+  <input type="text" id="userPassword" placeholder="Enter password" />
+  <button onclick="handleEncrypt()">Encrypt</button>
+  <textarea id="encryptedOutput" readonly placeholder="Encrypted result (copy this)"></textarea>
+
+  <h2>Decrypt</h2>
+  <input type="text" id="decryptPassword" placeholder="Enter password for decryption" />
+  <textarea id="decryptIV" placeholder="Paste IV array here (from encrypted output)"></textarea>
+  <textarea id="decryptCiphertext" placeholder="Paste ciphertext array here (from encrypted output)"></textarea>
+  <button onclick="handleDecrypt()">Decrypt</button>
+  <textarea id="decryptedOutput" readonly placeholder="Decrypted message will appear here"></textarea>
+
+  <pre id="output"></pre>
+        </div>
+    </div>
+</section>
+
+
+
+  <script>
+  </script>
+</body>
+</html>
+
+  <script>
+    async function encryptAES(plainText, keyStr) {
+      const enc = new TextEncoder();
+      const keyBytes = enc.encode(keyStr.padEnd(32, '0')).slice(0, 32);
+      const iv = window.crypto.getRandomValues(new Uint8Array(12));
+
+      const key = await crypto.subtle.importKey(
+        "raw", keyBytes,
+        { name: "AES-GCM" },
+        false, ["encrypt"]
+      );
+
+      const encrypted = await crypto.subtle.encrypt(
+        { name: "AES-GCM", iv: iv },
+        key,
+        enc.encode(plainText)
+      );
+
+      return {
+        iv: Array.from(iv),
+        ciphertext: Array.from(new Uint8Array(encrypted))
+      };
+    }
+
+    async function decryptAES(ciphertextArr, ivArr, keyStr) {
+      const dec = new TextDecoder();
+      const enc = new TextEncoder();
+      const keyBytes = enc.encode(keyStr.padEnd(32, '0')).slice(0, 32);
+
+      const key = await crypto.subtle.importKey(
+        "raw", keyBytes,
+        { name: "AES-GCM" },
+        false, ["decrypt"]
+      );
+
+      const decrypted = await crypto.subtle.decrypt(
+        { name: "AES-GCM", iv: new Uint8Array(ivArr) },
+        key,
+        new Uint8Array(ciphertextArr)
+      );
+
+      return dec.decode(decrypted);
+    }
+
+    async function handleEncrypt() {
+      const message = document.getElementById('userMessage').value;
+      const password = document.getElementById('userPassword').value;
+
+      if (!message || !password) {
+        alert("Please enter both a message and a password.");
+        return;
+      }
+
+      const { ciphertext, iv } = await encryptAES(message, password);
+
+      const output = {
+        iv,
+        ciphertext
+      };
+
+      document.getElementById('encryptedOutput').value =
+  "IV: " + JSON.stringify(iv) + "\n\n" +
+  "Ciphertext: " + JSON.stringify(ciphertext);
+    }
+
+    async function handleDecrypt() {
+      try {
+        const password = document.getElementById('decryptPassword').value;
+        const ivArr = JSON.parse(document.getElementById('decryptIV').value);
+        const ciphertextArr = JSON.parse(document.getElementById('decryptCiphertext').value);
+
+        if (!password || !ivArr || !ciphertextArr) {
+          alert("Please enter all required fields for decryption.");
+          return;
+        }
+
+        const result = await decryptAES(ciphertextArr, ivArr, password);
+        document.getElementById('decryptedOutput').value = result;
+      } catch (error) {
+        alert("Decryption failed. Please check your inputs and try again.");
+      }
+    }
+  </script>
+</body>
+</html>

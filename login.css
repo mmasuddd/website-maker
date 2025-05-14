@@ -1,0 +1,40 @@
+/* Options row: remember me & forgot password */
+.options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+    color: var(--dark-base);
+  }
+  
+  .options input[type="checkbox"] {
+    margin-right: 0.3rem;
+  }
+  
+  .forgot-password {
+    text-decoration: none;
+    color: var(--deep-navy);
+    transition: color 0.3s;
+  }
+  
+  .forgot-password:hover {
+    color: var(--warm-accent);
+  }
+  
+  /* Slide-in animation */
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .login-card {
+    animation: slideIn 1s ease-out;
+  }
+  

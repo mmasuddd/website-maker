@@ -1,0 +1,166 @@
+<section id="tools" class="topic-section">
+    <div class="container">
+        <h2 class="section-title">Tools & Technologies</h2>
+        <div class="tools-grid">
+            <a href="login.html" class="card" style="text-decoration: none; color: inherit;">
+                <div class="content-box">
+                    <h3>Encryption Tool</h3>
+                    <div class="editable-content">
+                        [Add tool category 1 content here]
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</section>
+
+
+
+
+
+ <section id="tools" class="topic-section">
+        <div class="container">
+            <h2 class="section-title">Tools & Technologies</h2>
+            <div class="tools-grid">
+                <div class="content-box">
+                    <h3>Encryption Tool</h3>
+                    <div class="editable-content">
+                        [Add tool category 1 content here]
+                    </div>
+                    <a href="secure-coding.html" class="card">
+
+
+
+
+
+
+
+
+
+New
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AES Encryption Demo</title>
+</head>
+<body>
+  <h1>Encrypt a Message</h1>
+
+  <input type="text" id="userMessage" placeholder="Enter message to encrypt" />
+  <input type="text" id="userPassword" placeholder="Enter password" />
+  <button onclick="handleEncrypt()">Encrypt</button>
+
+  <h3>Encrypted Output:</h3>
+  <pre id="output"></pre>
+
+  <script>
+    async function encryptAES(plainText, keyStr) {
+      const enc = new TextEncoder();
+      const keyBytes = enc.encode(keyStr.padEnd(32, '0')).slice(0, 32);
+      const iv = window.crypto.getRandomValues(new Uint8Array(12));
+
+      const key = await crypto.subtle.importKey(
+          "raw", keyBytes,
+          { name: "AES-GCM" },
+          false, ["encrypt"]
+      );
+
+      const encrypted = await crypto.subtle.encrypt(
+          { name: "AES-GCM", iv: iv },
+          key,
+          enc.encode(plainText)
+      );
+
+      return {
+          iv: Array.from(iv),
+          ciphertext: Array.from(new Uint8Array(encrypted))
+      };
+    }
+
+    async function handleEncrypt() {
+      const message = document.getElementById('userMessage').value;
+      const password = document.getElementById('userPassword').value;
+
+      if (!message || !password) {
+        alert("Please enter both a message and a password.");
+        return;
+      }
+
+      const { ciphertext, iv } = await encryptAES(message, password);
+      document.getElementById('output').textContent =
+        "IV: " + JSON.stringify(iv) + "\n" +
+        "Ciphertext: " + JSON.stringify(ciphertext);
+    }
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+Old
+
+
+  <script>
+    async function encryptAES(plainText, keyStr) {
+        const enc = new TextEncoder();
+        const keyBytes = enc.encode(keyStr.padEnd(32, '0')).slice(0, 32);
+        const iv = window.crypto.getRandomValues(new Uint8Array(12));
+
+        const key = await crypto.subtle.importKey(
+            "raw", keyBytes,
+            { name: "AES-GCM" },
+            false, ["encrypt"]
+        );
+
+        const encrypted = await crypto.subtle.encrypt(
+            { name: "AES-GCM", iv: iv },
+            key,
+            enc.encode(plainText)
+        );
+
+        return {
+            iv: Array.from(iv),
+            ciphertext: Array.from(new Uint8Array(encrypted))
+        };
+    }
+
+    async function decryptAES(ciphertextArr, ivArr, keyStr) {
+        const dec = new TextDecoder();
+        const enc = new TextEncoder();
+        const keyBytes = enc.encode(keyStr.padEnd(32, '0')).slice(0, 32);
+
+        const key = await crypto.subtle.importKey(
+            "raw", keyBytes,
+            { name: "AES-GCM" },
+            false, ["decrypt"]
+        );
+
+        const decrypted = await crypto.subtle.decrypt(
+            { name: "AES-GCM", iv: new Uint8Array(ivArr) },
+            key,
+            new Uint8Array(ciphertextArr)
+        );
+
+        return dec.decode(decrypted);
+    }
+
+    // Example usage
+    (async () => {
+        const password = "my-secret-password";
+        const message = "This is a secret message";
+
+        const { ciphertext, iv } = await encryptAES(message, password);
+        console.log("Encrypted:", ciphertext);
+
+        const decrypted = await decryptAES(ciphertext, iv, password);
+        console.log("Decrypted:", decrypted);
+    })();
+  </script>
+</body>
+</html>
+
